@@ -8,6 +8,16 @@
     <language>en-US</language>
     <lastBuildDate>Fri, 11 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>First post, last assignment</title>
+      <link>/post/2020/12/11/first-post-last-assignment/</link>
+      <pubDate>Fri, 11 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2020/12/11/first-post-last-assignment/</guid>
+      <description>Beaver body temperature I scrolled through the list of datasets in R looking for a fun one to use for this post, settled on this dataset because I saw a video of a beaver earlier today and he was very cute. The output gives us the mean body temperature (in degrees Celsius) over the period of a day for the beaver studied in this data.
+library(boot) head(beaver1) ## day time temp activ ## 1 346 840 36.</description>
+    </item>
+    
+    <item>
       <title>Test Post</title>
       <link>/post/2020/12/11/test-post/</link>
       <pubDate>Fri, 11 Dec 2020 00:00:00 +0000</pubDate>
@@ -25,17 +35,6 @@ Subheading More content
       
       <guid>/project/project1/</guid>
       <description>In this project I will be using two datasets containing information from Formula One (F1) Racing dating from 1950-2018. The first dataset is called &amp;quot;results&amp;quot; and contains the results of over 1000 race with over 23,000 data points. This data set has variables including every driver, constructor, race, fastestlaptime, points, finishing position, etc.The second dataset is called &amp;quot;qualifying1&amp;quot; and contains data from the qualifying sessions of all of the same races as in the previou dataset.</description>
-    </item>
-    
-    <item>
-      <title>Hello R Markdown</title>
-      <link>/post/2015/07/23/hello-r-markdown/</link>
-      <pubDate>Thu, 23 Jul 2015 21:13:14 -0500</pubDate>
-      
-      <guid>/post/2015/07/23/hello-r-markdown/</guid>
-      <description>R Markdown This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
-You can embed an R code chunk like this:
-summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
     </item>
     
     <item>

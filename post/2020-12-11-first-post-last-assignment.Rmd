@@ -1,0 +1,25 @@
+---
+title: First post, last assignment
+author: Cory
+date: '2020-12-11'
+slug: first-post-last-assignment
+categories: []
+tags: []
+description: ''
+---
+
+# Beaver body temperature
+
+I scrolled through the list of datasets in R looking for a fun one to use for this post, settled on this dataset because I saw a video of a beaver earlier today and he was very cute. The output gives us the mean body temperature (in degrees Celsius) over the period of a day for the beaver studied in this data.
+
+```{R}
+library(boot)
+head(beaver1)
+beav <- beaver1
+```
+
+```{python}
+r.beav.temp.mean()
+done="Just finished my last assignment as an undergrad at UT! Hook em!"
+print(done)
+```
