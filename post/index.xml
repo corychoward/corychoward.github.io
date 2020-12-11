@@ -13,8 +13,8 @@
       <pubDate>Fri, 11 Dec 2020 00:00:00 +0000</pubDate>
       
       <guid>/post/2020/12/11/first-post-last-assignment/</guid>
-      <description>Beaver body temperature I scrolled through the list of datasets in R looking for a fun one to use for this post, settled on this dataset because I saw a video of a beaver earlier today and he was very cute. The output gives us the mean body temperature (in degrees Celsius) over the period of a day for the beaver studied in this data.
-library(boot) head(beaver1) ## day time temp activ ## 1 346 840 36.</description>
+      <description>Connecting R and Python In this post I&#39;ll be showing how we are able to take a dataset from R and create an output in python.
+library(boot) head(beaver1) ## day time temp activ ## 1 346 840 36.33 0 ## 2 346 850 36.34 0 ## 3 346 900 36.35 0 ## 4 346 910 36.42 0 ## 5 346 920 36.55 0 ## 6 346 930 36.69 0 beav &amp;lt;- beaver1 I scrolled through the list of datasets in R looking for a fun one to use for this post, settled on this dataset because I saw a video of a beaver earlier today and he was very cute.</description>
     </item>
     
     <item>

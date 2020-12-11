@@ -72,9 +72,9 @@
               
 
 
-<div id="beaver-body-temperature" class="section level1">
-<h1>Beaver body temperature</h1>
-<p>I scrolled through the list of datasets in R looking for a fun one to use for this post, settled on this dataset because I saw a video of a beaver earlier today and he was very cute. The output gives us the mean body temperature (in degrees Celsius) over the period of a day for the beaver studied in this data.</p>
+<div id="connecting-r-and-python" class="section level1">
+<h1>Connecting R and Python</h1>
+<p>In this post I'll be showing how we are able to take a dataset from R and create an output in python.</p>
 <pre class="r"><code>library(boot)
 head(beaver1)</code></pre>
 <pre><code>##   day time  temp activ
@@ -85,10 +85,15 @@ head(beaver1)</code></pre>
 ## 5 346  920 36.55     0
 ## 6 346  930 36.69     0</code></pre>
 <pre class="r"><code>beav &lt;- beaver1</code></pre>
+<p>I scrolled through the list of datasets in R looking for a fun one to use for this post, settled on this dataset because I saw a video of a beaver earlier today and he was very cute. I saved this dataset in R.</p>
 <pre class="python"><code>r.beav.temp.mean()</code></pre>
 <pre><code>## 36.862192982456143</code></pre>
-<pre class="python"><code>done=&quot;Just finished my last assignment as an undergrad at UT! Hook em!&quot;
-print(done)</code></pre>
+<p>After saving the dataset in R we can send it to python using the &quot;r.&quot; function. The output gives us the mean body temperature (in degrees Celsius) over the period of a day for the beaver studied in this data. <img src="../../../../../post/2020-12-11-first-post-last-assignment_files/log.jpg" style="width:50.0%" /></p>
+<pre class="r"><code>library(reticulate)
+fin &lt;- &quot;Just finished my last assignment as an undergrad at UT!&quot;</code></pre>
+<p>We are also able to combine functions from R into python using reticulate.</p>
+<pre class="python"><code>ished=&quot;Hook em!&quot;
+print(r.fin,ished)</code></pre>
 <pre><code>## Just finished my last assignment as an undergrad at UT! Hook em!</code></pre>
 </div>
 

@@ -8,9 +8,9 @@ tags: []
 description: ''
 ---
 
-# Beaver body temperature
+# Connecting R and Python
 
-I scrolled through the list of datasets in R looking for a fun one to use for this post, settled on this dataset because I saw a video of a beaver earlier today and he was very cute. The output gives us the mean body temperature (in degrees Celsius) over the period of a day for the beaver studied in this data.
+In this post I'll be showing how we are able to take a dataset from R and create an output in python.
 
 ```{R}
 library(boot)
@@ -18,8 +18,20 @@ head(beaver1)
 beav <- beaver1
 ```
 
+I scrolled through the list of datasets in R looking for a fun one to use for this post, settled on this dataset because I saw a video of a beaver earlier today and he was very cute. I saved this dataset in R.
 ```{python}
 r.beav.temp.mean()
-done="Just finished my last assignment as an undergrad at UT! Hook em!"
-print(done)
+```
+
+After saving the dataset in R we can send it to python using the "r." function. The output gives us the mean body temperature (in degrees Celsius) over the period of a day for the beaver studied in this data.
+![](/post/2020-12-11-first-post-last-assignment_files/log.jpg){width=50%}
+```{R}
+library(reticulate)
+fin <- "Just finished my last assignment as an undergrad at UT!"
+```
+
+We are also able to combine functions from R into python using reticulate.
+```{python}
+ished="Hook em!"
+print(r.fin,ished)
 ```
