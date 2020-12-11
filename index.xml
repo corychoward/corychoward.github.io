@@ -19,15 +19,6 @@ Subheading More content
     </item>
     
     <item>
-      <title>Project 2</title>
-      <link>/project/project2/</link>
-      <pubDate>Tue, 01 Dec 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/project/project2/</guid>
-      <description> Test Project 2  </description>
-    </item>
-    
-    <item>
       <title>Project 1: Formula One Exploratory Data Analysis</title>
       <link>/project/project1/</link>
       <pubDate>Sun, 18 Oct 2020 00:00:00 +0000</pubDate>
@@ -45,6 +36,15 @@ Subheading More content
       <description>R Markdown This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
 You can embed an R code chunk like this:
 summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
+    </item>
+    
+    <item>
+      <title>Project 2: NFL Betting Modeling, Testing, and Predicting</title>
+      <link>/project/project2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>Data Introduction In this project I will be using an NFL betting dataset I found from kaggle. From that dataset I created this one which includes every game from the 2016 season. A little betting terminology knowledge is necessary for understanding this data. The game &amp;quot;spread&amp;quot; is how much a team is expected to win by, the &amp;quot;over/under line&amp;quot; is how many total points are expected to be scored by both teams combined in a game.</description>
     </item>
     
     <item>

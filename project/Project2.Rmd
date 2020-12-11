@@ -1,0 +1,213 @@
+---
+title: 'Project 2: NFL Betting Modeling, Testing, and Predicting'
+author: Cory Howard
+date: 11/25/2020
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+library(tidyverse)
+```
+
+#Data Introduction
+In this project I will be using an NFL betting dataset I found from kaggle. From that dataset I created this one which includes every game from the 2016 season. A little betting terminology knowledge is necessary for understanding this data. The game "spread" is how much a team is expected to win by, the "over/under line" is how many total points are expected to be scored by both teams combined in a game. Lines are set by different sports books, I do not know which one these came from or if they are consensus lines. The response variables I will be using are spreadhit which gives the value "TRUE" when the favored team covers the spread. The other is overhit which will give the value "TRUE" when the teams score more combined points than the over/under line. This dataset also includes weather data of the temperature and wind during the game. I do not know where the weather data came from, and I have to assume it was taken at the start of the game. Generally if the temperature is 72 and the wind is 0 that means the game is being played in an indoor arena. Hopefully through this project, I can find a way to win some bets.
+
+```{R}
+#Data Wrangling
+nflbettingdata <- read.csv("nflbettingdata.csv")
+nflmutadd <- nflbettingdata %>% mutate(overhit = score_total > over_under_line) %>% mutate(spreadhit = result_favorite > 0) %>% mutate(spread_favorite = spread_favorite * -1)
+
+data1 <- nflmutadd %>% select(result_favorite, spread_favorite, spreadhit, over_under_line, score_total, overhit, weather_temperature, weather_wind_mph)
+```
+
+##MANOVA
+
+```{R}
+#MANOVA Assumptions
+library(rstatix)
+
+group <- data1$overhit
+DVs <- data1 %>% select(spread_favorite, over_under_line, weather_temperature, weather_wind_mph)
+
+#Test multivariate normality for each group (null: assumption met)
+sapply(split(DVs,group), mshapiro_test)
+
+#If any p<.05, stop (assumption violated). If not, test homogeneity of covariance matrices
+
+#Box's M test (null: assumption met)
+box_m(DVs, group)
+
+#Optionally, view covariance matrices for each group
+lapply(split(DVs,group), cov)
+```
+
+```{R}
+#MANOVA
+man1 <- manova(cbind(spread_favorite, over_under_line, weather_temperature, weather_wind_mph)~overhit, data=data1)
+
+summary(man1)
+
+#Univariate ANOVAs
+summary.aov(man1)
+
+#T tests
+data1 %>% group_by(overhit) %>% summarize(mean(spread_favorite), mean(over_under_line), mean(weather_temperature), mean(weather_wind_mph))
+
+pairwise.t.test(data1$spread_favorite,data1$overhit, p.adj="none")
+pairwise.t.test(data1$over_under_line,data1$overhit, p.adj="none")
+pairwise.t.test(data1$weather_temperature,data1$overhit, p.adj="none")
+pairwise.t.test(data1$weather_wind_mph,data1$overhit, p.adj="none")
+
+#Probability of type 1 error
+1-(.95^6)
+.05/6
+```
+
+*Using the MANOVA test I was able to see that my explanatory variables (spread_favorite, over_under_line, weather_temperature, weather_wind_mph) did not have a significant effect on my response variable of "overhit". I then used the univariate ANOVA test to see how each variable affected the result from the MANOVA, this showed me that each variable by itself was also insignificant, however weather_temperature was the closest to having any significance and it turns out that spread_favorite was the most insignificant. The t tests and post-hoc tests largely showed the same results as before. I ran 6 tests, using this I can see that the probability of at least one type I error is about 26.5%, and the Bonferroni's adjusted correction is about 0.83%. I can conclude that there is no significant difference in my data before and after adjustment. My data violates the assumption of multivariate normality as both p-values found are less than .05.*
+
+##Linear Regression
+
+```{R}
+#Mean Centering
+data_mc <- data1 %>% mutate(windmc = weather_wind_mph-mean(weather_wind_mph, na.rm=T)) %>% mutate(tempmc = weather_temperature-mean(weather_temperature, na.rm=T))
+
+#Linear Regression
+fit <- glm(overhit ~ windmc + tempmc, data=data_mc)
+summary(fit)
+
+#Plot
+data_mc %>% ggplot(aes(windmc, tempmc, color=overhit)) + geom_smooth(method="lm")
+
+#Assumptions
+ggplot(data_mc, aes(windmc, tempmc)) + geom_point(alpha=.3) + theme_bw()
+
+resids <- fit$residuals
+fitvals <- fit$fitted.values
+ggplot() + geom_point(aes(fitvals,resids)) + geom_hline(yintercept = 0, color='red')
+
+#Recomputed Regression
+library(sandwich); library(lmtest)
+coeftest(fit, vcov = vcovHC(fit))[,1:2]
+```
+
+*I built a linear regression model predicting "overhit" from "weather_wind_mph" and "weather_temperature". From the regression we get the intercept coefficient of 0.524 meaning that when wind and temperature are both at their means, we expect overhit to be false 52.4% of the time. The coefficient for windmc means that for every increase in 1 from the mean centered wind variable we expect the intercept to change by -0.0057. The coefficient for tempmc means that for every increase in 1 from the mean centered tempreature variable we expect the intercept to change by 0.003109. *
+*When recomputing regression results with robust standard error we see that the standard error for the intercept would be enough to move it across the 50% threshold, and for the windmc coefficient the standard error would be enough to make it positive instead of negative.*
+
+##Bootstrapped Linear Regression
+
+```{R}
+resid_resamp <- replicate(5000,{
+  new_resids<-sample(resids,replace=TRUE)
+  data_mc$new_y<-fitvals+new_resids
+  fit2<-lm(new_y~windmc+tempmc,data=data_mc)
+  coef(fit2)
+})
+
+resid_resamp %>% t %>% as.data.frame %>% summarize_all(sd)
+```
+
+##Logistic Regression On a Binary Variable
+
+```{R}
+#Logistic Regression for binary variable
+databin <- data1 %>% mutate(y=ifelse(spreadhit=="TRUE",1,0)) %>% na.omit
+
+fit3 <- glm(spreadhit~over_under_line+weather_temperature, data=databin, family='binomial'(link="logit"))
+coeftest(fit3)
+
+exp(coef(fit3))
+
+#Confusion Matrix NOT WORKING
+pred <- predict(fit3,type="response")
+prob <- ifelse(pred>.5,1,0)
+table(predict=as.numeric(pred>.5),truth=databin$spreadhit)%>%addmargins
+
+#Accuracy
+174/265
+
+#Sensitivity
+0/1
+
+#Specificity
+174/264
+
+#Precision
+0/90
+
+#Density Plot
+databin$logit<-predict(fit3,type="link")
+databin %>% ggplot(aes(logit, color=spreadhit, fill=spreadhit)) + geom_density(alpha=.3, color="red", fill="dodgerblue")
+
+#ROC Curve
+library(plotROC)
+roc <- ggplot(databin) + geom_roc(aes(d=spreadhit, m=pred), n.cuts=0)
+roc
+calc_auc(roc)
+```
+*From the logistic regression we can see that the intercept coefficient is significant (finally got one!). This shows that the combination of the variables over_under_line and weather_temp has a significant effect on spreadhit. Neither of these variables alone have a significant effect on the spreadhit however. For about every unit increase in each variable the chance of spreadhit being true increases. For the confusion matrix, we go the following values; Accuracy: 0.6566; Sensitivity: 0; Specificity: 0.659; Precision: 0. The AUC shows us that the area under the curve of the ROC plot is 0.5778.*
+
+##Logistic Regression On All Variables
+
+```{R}
+class_diag <- function(probs,truth){
+  #CONFUSION MATRIX: CALCULATE ACCURACY, TPR, TNR, PPV
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  f1=2*(sens*ppv)/(sens+ppv)
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,f1,auc)
+}
+
+library(glmnet)
+fitl <- glm(spreadhit~over_under_line + spread_favorite + weather_temperature + weather_wind_mph, data=data1)
+summary(fitl)
+
+prob1<-predict(fitl,type="response")
+library(pROC)
+class_diag(prob1, databin$spreadhit)
+```
+*Using all of the variables we see that the significant factors are the intercept and spread_favorite. The AUC is 0.629.*
+
+...
+
+
+
+
+

@@ -6,16 +6,7 @@
     <description>Recent content in Projects on My Website</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
-    <lastBuildDate>Tue, 01 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Project 2</title>
-      <link>/project/project2/</link>
-      <pubDate>Tue, 01 Dec 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/project/project2/</guid>
-      <description> Test Project 2  </description>
-    </item>
-    
+    <lastBuildDate>Sun, 18 Oct 2020 00:00:00 +0000</lastBuildDate><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Project 1: Formula One Exploratory Data Analysis</title>
       <link>/project/project1/</link>
@@ -23,6 +14,15 @@
       
       <guid>/project/project1/</guid>
       <description>In this project I will be using two datasets containing information from Formula One (F1) Racing dating from 1950-2018. The first dataset is called &amp;quot;results&amp;quot; and contains the results of over 1000 race with over 23,000 data points. This data set has variables including every driver, constructor, race, fastestlaptime, points, finishing position, etc.The second dataset is called &amp;quot;qualifying1&amp;quot; and contains data from the qualifying sessions of all of the same races as in the previou dataset.</description>
+    </item>
+    
+    <item>
+      <title>Project 2: NFL Betting Modeling, Testing, and Predicting</title>
+      <link>/project/project2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>Data Introduction In this project I will be using an NFL betting dataset I found from kaggle. From that dataset I created this one which includes every game from the 2016 season. A little betting terminology knowledge is necessary for understanding this data. The game &amp;quot;spread&amp;quot; is how much a team is expected to win by, the &amp;quot;over/under line&amp;quot; is how many total points are expected to be scored by both teams combined in a game.</description>
     </item>
     
   </channel>
