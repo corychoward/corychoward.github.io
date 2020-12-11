@@ -1,0 +1,187 @@
+---
+title: 'Project 1: Formula One Exploratory Data Analysis'
+author: "Cory Howard"
+date: '2020-10-18'
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+  pdf_document:
+    toc: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F,
+tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
+```
+In this project I will be using two datasets containing information from Formula One (F1) Racing dating from 1950-2018. The first dataset is called "results" and contains the results of over 1000 race with over 23,000 data points. This data set has variables including every driver, constructor, race, fastestlaptime, points, finishing position, etc.The second dataset is called "qualifying1" and contains data from the qualifying sessions of all of the same races as in the previou dataset. This data includes qualifying position, race, constructor, and driver as well. 
+This data is interesting to me because I love watching F1 on the weekend and I have become much more invested in the sport in recent years. I would love to learn more about it and it seemed like a subject that would have a lot of useable data from over the years. I expect to see an association between doing well in qualifying and doing well in the race itself. I found this data from kaggle.com.
+
+
+## Datasets
+```{R}
+library(readr)
+qualifying1 <- read_csv("qualifying1.csv")
+qualifying1
+
+library(readr)
+results <- read_csv("results.csv")
+results
+```
+
+
+## Cleaning up the data/Tidying
+```{R}
+library("tidyverse")
+library(tidyr)
+library(dplyr)
+
+qualrecent <- qualifying1 %>% filter(raceId>=841) %>% rename(qposition = position)
+resrecent <- results %>% filter(raceId>=841) %>% rename(fposition = position)
+```
+*To clean up the data I removed all data from before 2011 which is a year after F1 changed to the new points system (25 points for 1st along with increased values until 10th place). There was a variable called "position" in each dataset which did not refrence the same thing so I renamed position from the qualifying1 dataset to "qposition" and from the results dataset to "fposition". 
+
+
+## Joining
+```{R}
+f1big <- full_join(resrecent, qualrecent)
+f1big
+```
+*I joined my dataset using the full_join function with the common variable of raceId. I discussed which data I dropped in the last section, I don't know that there will be any problems with this because the sport is different today than it was in 1950 so it wouldn't make sense to go that far back in the data.*
+
+
+## Data Wrangling and Data Exploration
+```{R}
+f1 <- f1big %>% select(resultId, raceId, driverId, constructorId, points, fastestLapSpeed, fposition, qposition, q1, q2, q3)
+f1
+```
+*In this section I created a new dataset that I will be using for the next few parts that only includes the variables that are important for what I want to do in this project. *
+
+
+```{R}
+f1 %>% arrange(desc(fastestLapSpeed)) %>% select(fastestLapSpeed)
+```
+*I used the arrange function to find the fastest lap speed in this dataset which turned out to be 250.174 MPH. *
+
+
+```{R}
+f1good <- f1[!is.na(f1$points), ]
+f1good$scored <- ifelse(f1good$points == 0, "No", "Yes")
+scored <- f1good$scored
+f1good
+```
+*In this section I created a new column, called "scored" in a new dataset, called "f1good". The scored column is  categorical variable that tracks if a driver scored points in a race or not which is pretty much a way to say did they finish 10th or better. *
+
+
+```{R}
+f1good %>% group_by(scored) %>% summarize(fl=min(fastestLapSpeed,na.rm = T))
+```
+*Here, I used the group_by function to compare the lowest lap speed for anyone in this dataset that scored a point which came out to be 147.98 MPH, and the lowest lap speed for any driver that didn't score points which is also just the lowest lap speed, 100.62 MPH. *
+
+
+```{R}
+f1mut <- f1 %>% mutate(places_gained = qposition-fposition)
+f1mut
+```
+*Here, I used the mutate function to add a column called places_gained which is just the difference in position for each driver from the start of the race to the end of the race.
+
+
+```{R}
+f1total <- left_join(f1good, f1mut)
+f1total
+```
+*I created a new dataset that I used for the rest of the project that included the new variables I created, score and places_gained. I used left join to join these datasets because that had almost entirely the same data except for one column in each that needed to be added to each other. This is the same as the F1 dataset but included those two variabled.*
+
+
+```{R}
+f1total$resultId = as.factor(f1total$resultId)
+f1total$raceId = as.factor(f1total$raceId)
+f1total$constructorId = as.factor(f1total$constructorId)
+f1total$driverId = as.factor(f1total$driverId)
+```
+*I had to clean up this new dataset a little bit. These variables (resultID, raceId, constructorID, and driverId) are all listed in the dataset as numeric becaise they are numbers however they represent categorical variables so I changed them.*
+
+
+```{R}
+library(chron)
+mean(times(f1$q3))
+mean(times(f1$q2))
+mean(times(f1$q1))
+```
+*The variables "q1", "q2", and "q3" are all in the hms class rather than numeric so I had to download the library "chron" to get the times function to find the mean. I dont incude this data anywhere else because the data didn't exactly convert correctly onto R, there was supposed to be a milliseconds bit that got replaced by zeros when I imported into R. These are the rough means for each of those variables that were rounded when the dataset was imported.*
+
+
+```{R}
+f1total %>% summary(is.numeric = T)
+```
+*I used the summary function to get the min, max, median, mean, Q1, and Q3 for each numeric variable in my data.*
+
+
+```{R}
+f1total %>% group_by(raceId) %>% summarize(mean(fastestLapSpeed)) %>% na.omit()
+```
+*This shows the average fastest lap speed for each race.*
+
+
+```{R}
+f1total %>% group_by(raceId, constructorId) %>% summarize(fastestLapSpeed)
+```
+*This summary shows the fastest lap speed for both drivers for each constructor.*
+
+
+```{R}
+f1num <- f1total %>% select(points, fastestLapSpeed, fposition, qposition, places_gained) %>% na.omit()
+corylation <- cor(f1num)
+round(corylation, 2)
+```
+*In this section I created a correlation matrix that I will be using in the visualization section.*
+
+
+## Visualization
+```{R}
+library("ggplot2")
+corylation %>% as.data.frame %>%
+rownames_to_column %>% pivot_longer(-1) %>% ggplot(aes(rowname,
+name, fill = value)) + geom_tile() + geom_text(aes(label = round(value,
+2))) + xlab("") + ylab("") + scale_fill_gradient2(low = "dodgerblue",
+high = "dodgerblue4") + theme(axis.text.x = element_text(angle = 60,
+hjust = 1))
+```
+*This is a correlation heatmap comparing all of the numeric variables in my datasets. We can see a strong negative correlation between points and final position meaning the higher the number of the position a driver finishes the less points they score which makes perfect sense. The next most significant variable comparison is between qualifying position and final position. This also makes sense because passing is difficult in a race so drivers generally finish around the spot they started in. We also see a solid negative correlation between quaifying position and points scored which makes sense based on the previous two comparisons made.*
+
+
+```{R}
+f1total %>% ggplot(aes(x = fposition, y = qposition)) +
+geom_jitter(size = 2, aes(color = points, alpha = .2)) + scale_color_gradient(low = "thistle",
+high = "thistle4") + ggtitle("Scatterplot comparing qualifying position to finishing position") +
+xlab("Final position") + ylab("Qualifying position") + scale_y_continuous(breaks = seq(1,
+25, 1)) + scale_x_continuous(breaks = seq(1, 25, 1))
+```
+*This is a scatterplot comparing all of the drivers qualifying positions to their finishing position with the color gradient being associated with points scored. There appears to be a strong positive correlation between qualifying position and final position which is what we would expect to see because drivers who qualify higher(lower number) start in a better position in the race. We also see the color gradient gets much darker going from right to left, this is because points are directly associated with final position.*
+
+
+```{R}
+f1total %>% filter(driverId == "1" | driverId == "8" | driverId == "20" | driverId == "154" | driverId == "817" | driverId == "13") %>% ggplot(aes(x = driverId, y = points, fill = driverId)) + geom_bar(stat = "summary", fun.y = "mean", position = "dodge") + ggtitle("Average points scored for different F1 drivers") + theme(axis.title.x =element_blank(), legend.position = "right") + scale_y_continuous(breaks = seq(0, 140, 5))
+
+ham <- f1total %>% filter(driverId=="1")
+mean(ham$points)
+```
+*Each driverId corresponds to a different F1 driver who has raced in over 100 races since 2011. Driver 1 is Lewis Hamilton who over this set of races has averaged a little over 15 points per race. The code below the code for the graph is there to make sure the graph has the correct numbers, and looking at the results from that this graph is accurate.*
+
+
+## Clustering
+```{R}
+library(cluster)
+pam <- f1total %>% pam(k=3)
+pam
+```
+
+
+```{R}
+clust <- f1total %>% mutate(cluster = as.factor(pam$clustering))
+clust %>% ggplot(aes(fastestLapSpeed, qposition, color = scored,
+shape = cluster)) + geom_point()
+```
+*In this clustering section I created a partioning around mediods (PAM) dataset using the f1total dataset, comparting fastedt lap speed, qualifying position, as well as sorting by whether the driver scored points or not. There is not much of a correlation in this chart, I chose to center around 3 clusters because there are no clear clusters and that was the standard amount we used in class. Looking at this cluster graph we can see that drivers who scored points tended to qualify higher, which is exactly what we saw in the correlation matrix. There seem to be about 10-15 data points lower than 150 fastest lap the rest are above, the ones below are likely due to malfunctions in the car.*

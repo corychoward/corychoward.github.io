@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Cory Howard" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 1: Formula One Exploratory Data Analysis</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project1/">Project 1: Formula One Exploratory Data Analysis</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         October 18, 2020 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<p>In this project I will be using two datasets containing information from Formula One (F1) Racing dating from 1950-2018. The first dataset is called &quot;results&quot; and contains the results of over 1000 race with over 23,000 data points. This data set has variables including every driver, constructor, race, fastestlaptime, points, finishing position, etc.The second dataset is called &quot;qualifying1&quot; and contains data from the qualifying sessions of all of the same races as in the previou dataset. This data includes qualifying position, race, constructor, and driver as well. This data is interesting to me because I love watching F1 on the weekend and I have become much more invested in the sport in recent years. I would love to learn more about it and it seemed like a subject that would have a lot of useable data from over the years. I expect to see an association between doing well in qualifying and doing well in the race itself. I found this data from kaggle.com.</p>
+<div id="datasets" class="section level2">
+<h2>Datasets</h2>
+<pre class="r"><code>library(readr)
+qualifying1 &lt;- read_csv(&quot;qualifying1.csv&quot;)
+qualifying1</code></pre>
+<pre><code>## # A tibble: 7,516 x 9
+##    qualifyId raceId driverId constructorId number position q1     q2     q3    
+##        &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;         &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;time&gt; &lt;time&gt; &lt;time&gt;
+##  1         1     18        1             1     22        1 01:26  01:25  01:26 
+##  2         2     18        9             2      4        2 01:26  01:25  01:26 
+##  3         3     18        5             1     23        3 01:25  01:25  01:27 
+##  4         4     18       13             6      2        4 01:26  01:25  01:27 
+##  5         5     18        2             2      3        5 01:26  01:25  01:27 
+##  6         6     18       15             7     11        6 01:26  01:26  01:28 
+##  7         7     18        3             3      7        7 01:26  01:26  01:28 
+##  8         8     18       14             9      9        8 01:26  01:26  01:29 
+##  9         9     18       10             7     12        9 01:26  01:26  01:29 
+## 10        10     18       20             5     15       10 01:26  01:25     NA 
+## # … with 7,506 more rows</code></pre>
+<pre class="r"><code>library(readr)
+results &lt;- read_csv(&quot;results.csv&quot;)
+results</code></pre>
+<pre><code>## # A tibble: 23,777 x 18
+##    resultId raceId driverId constructorId number  grid position positionText
+##       &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;         &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt; &lt;chr&gt;       
+##  1        1     18        1             1     22     1        1 1           
+##  2        2     18        2             2      3     5        2 2           
+##  3        3     18        3             3      7     7        3 3           
+##  4        4     18        4             4      5    11        4 4           
+##  5        5     18        5             1     23     3        5 5           
+##  6        6     18        6             3      8    13        6 6           
+##  7        7     18        7             5     14    17        7 7           
+##  8        8     18        8             6      1    15        8 8           
+##  9        9     18        9             2      4     2       NA R           
+## 10       10     18       10             7     12    18       NA R           
+## # … with 23,767 more rows, and 10 more variables: positionOrder &lt;dbl&gt;,
+## #   points &lt;dbl&gt;, laps &lt;dbl&gt;, time &lt;chr&gt;, milliseconds &lt;dbl&gt;, fastestLap &lt;dbl&gt;,
+## #   rank &lt;dbl&gt;, fastestLapTime &lt;time&gt;, fastestLapSpeed &lt;dbl&gt;, statusId &lt;dbl&gt;</code></pre>
+</div>
+<div id="cleaning-up-the-datatidying" class="section level2">
+<h2>Cleaning up the data/Tidying</h2>
+<pre class="r"><code>library(&quot;tidyverse&quot;)
+library(tidyr)
+library(dplyr)
+
+qualrecent &lt;- qualifying1 %&gt;% filter(raceId &gt;= 841) %&gt;% rename(qposition = position)
+resrecent &lt;- results %&gt;% filter(raceId &gt;= 841) %&gt;% rename(fposition = position)</code></pre>
+<p>*To clean up the data I removed all data from before 2011 which is a year after F1 changed to the new points system (25 points for 1st along with increased values until 10th place). There was a variable called &quot;position&quot; in each dataset which did not refrence the same thing so I renamed position from the qualifying1 dataset to &quot;qposition&quot; and from the results dataset to &quot;fposition&quot;.</p>
+</div>
+<div id="joining" class="section level2">
+<h2>Joining</h2>
+<pre class="r"><code>f1big &lt;- full_join(resrecent, qualrecent)
+f1big</code></pre>
+<pre><code>## # A tibble: 3,013 x 23
+##    resultId raceId driverId constructorId number  grid fposition positionText
+##       &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;         &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;       
+##  1    20779    841       20             9      1     1         1 1           
+##  2    20780    841        1             1      3     2         2 2           
+##  3    20781    841      808             4     10     6         3 3           
+##  4    20782    841        4             6      5     5         4 4           
+##  5    20783    841       17             9      2     3         5 5           
+##  6    20784    841       18             1      4     4         6 6           
+##  7    20785    841       13             6      6     8         7 7           
+##  8    20786    841       67             5     18    10         8 8           
+##  9    20787    841       16            10     14    16         9 9           
+## 10    20788    841      814            10     15    14        10 10          
+## # … with 3,003 more rows, and 15 more variables: positionOrder &lt;dbl&gt;,
+## #   points &lt;dbl&gt;, laps &lt;dbl&gt;, time &lt;chr&gt;, milliseconds &lt;dbl&gt;, fastestLap &lt;dbl&gt;,
+## #   rank &lt;dbl&gt;, fastestLapTime &lt;time&gt;, fastestLapSpeed &lt;dbl&gt;, statusId &lt;dbl&gt;,
+## #   qualifyId &lt;dbl&gt;, qposition &lt;dbl&gt;, q1 &lt;time&gt;, q2 &lt;time&gt;, q3 &lt;time&gt;</code></pre>
+<p><em>I joined my dataset using the full_join function with the common variable of raceId. I discussed which data I dropped in the last section, I don't know that there will be any problems with this because the sport is different today than it was in 1950 so it wouldn't make sense to go that far back in the data.</em></p>
+</div>
+<div id="data-wrangling-and-data-exploration" class="section level2">
+<h2>Data Wrangling and Data Exploration</h2>
+<pre class="r"><code>f1 &lt;- f1big %&gt;% select(resultId, raceId, driverId, constructorId, 
+    points, fastestLapSpeed, fposition, qposition, q1, q2, q3)
+f1</code></pre>
+<pre><code>## # A tibble: 3,013 x 11
+##    resultId raceId driverId constructorId points fastestLapSpeed fposition
+##       &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;         &lt;dbl&gt;  &lt;dbl&gt;           &lt;dbl&gt;     &lt;dbl&gt;
+##  1    20779    841       20             9     25            212.         1
+##  2    20780    841        1             1     18            211.         2
+##  3    20781    841      808             4     15            212.         3
+##  4    20782    841        4             6     12            213.         4
+##  5    20783    841       17             9     10            213.         5
+##  6    20784    841       18             1      8            212.         6
+##  7    20785    841       13             6      6            215.         7
+##  8    20786    841       67             5      4            210.         8
+##  9    20787    841       16            10      2            209.         9
+## 10    20788    841      814            10      1            208.        10
+## # … with 3,003 more rows, and 4 more variables: qposition &lt;dbl&gt;, q1 &lt;time&gt;,
+## #   q2 &lt;time&gt;, q3 &lt;time&gt;</code></pre>
+<p><em>In this section I created a new dataset that I will be using for the next few parts that only includes the variables that are important for what I want to do in this project. </em></p>
+<pre class="r"><code>f1 %&gt;% arrange(desc(fastestLapSpeed)) %&gt;% select(fastestLapSpeed)</code></pre>
+<pre><code>## # A tibble: 3,013 x 1
+##    fastestLapSpeed
+##              &lt;dbl&gt;
+##  1            250.
+##  2            250.
+##  3            249.
+##  4            249.
+##  5            247.
+##  6            245.
+##  7            245.
+##  8            245.
+##  9            244.
+## 10            244.
+## # … with 3,003 more rows</code></pre>
+<p><em>I used the arrange function to find the fastest lap speed in this dataset which turned out to be 250.174 MPH. </em></p>
+<pre class="r"><code>f1good &lt;- f1[!is.na(f1$points), ]
+f1good$scored &lt;- ifelse(f1good$points == 0, &quot;No&quot;, &quot;Yes&quot;)
+scored &lt;- f1good$scored
+f1good</code></pre>
+<pre><code>## # A tibble: 3,001 x 12
+##    resultId raceId driverId constructorId points fastestLapSpeed fposition
+##       &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;         &lt;dbl&gt;  &lt;dbl&gt;           &lt;dbl&gt;     &lt;dbl&gt;
+##  1    20779    841       20             9     25            212.         1
+##  2    20780    841        1             1     18            211.         2
+##  3    20781    841      808             4     15            212.         3
+##  4    20782    841        4             6     12            213.         4
+##  5    20783    841       17             9     10            213.         5
+##  6    20784    841       18             1      8            212.         6
+##  7    20785    841       13             6      6            215.         7
+##  8    20786    841       67             5      4            210.         8
+##  9    20787    841       16            10      2            209.         9
+## 10    20788    841      814            10      1            208.        10
+## # … with 2,991 more rows, and 5 more variables: qposition &lt;dbl&gt;, q1 &lt;time&gt;,
+## #   q2 &lt;time&gt;, q3 &lt;time&gt;, scored &lt;chr&gt;</code></pre>
+<p><em>In this section I created a new column, called &quot;scored&quot; in a new dataset, called &quot;f1good&quot;. The scored column is categorical variable that tracks if a driver scored points in a race or not which is pretty much a way to say did they finish 10th or better. </em></p>
+<pre class="r"><code>f1good %&gt;% group_by(scored) %&gt;% summarize(fl = min(fastestLapSpeed, 
+    na.rm = T))</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   scored    fl
+##   &lt;chr&gt;  &lt;dbl&gt;
+## 1 No      101.
+## 2 Yes     148.</code></pre>
+<p><em>Here, I used the group_by function to compare the lowest lap speed for anyone in this dataset that scored a point which came out to be 147.98 MPH, and the lowest lap speed for any driver that didn't score points which is also just the lowest lap speed, 100.62 MPH. </em></p>
+<pre class="r"><code>f1mut &lt;- f1 %&gt;% mutate(places_gained = qposition - fposition)
+f1mut</code></pre>
+<pre><code>## # A tibble: 3,013 x 12
+##    resultId raceId driverId constructorId points fastestLapSpeed fposition
+##       &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;         &lt;dbl&gt;  &lt;dbl&gt;           &lt;dbl&gt;     &lt;dbl&gt;
+##  1    20779    841       20             9     25            212.         1
+##  2    20780    841        1             1     18            211.         2
+##  3    20781    841      808             4     15            212.         3
+##  4    20782    841        4             6     12            213.         4
+##  5    20783    841       17             9     10            213.         5
+##  6    20784    841       18             1      8            212.         6
+##  7    20785    841       13             6      6            215.         7
+##  8    20786    841       67             5      4            210.         8
+##  9    20787    841       16            10      2            209.         9
+## 10    20788    841      814            10      1            208.        10
+## # … with 3,003 more rows, and 5 more variables: qposition &lt;dbl&gt;, q1 &lt;time&gt;,
+## #   q2 &lt;time&gt;, q3 &lt;time&gt;, places_gained &lt;dbl&gt;</code></pre>
+<p>*Here, I used the mutate function to add a column called places_gained which is just the difference in position for each driver from the start of the race to the end of the race.</p>
+<pre class="r"><code>f1total &lt;- left_join(f1good, f1mut)
+f1total</code></pre>
+<pre><code>## # A tibble: 3,001 x 13
+##    resultId raceId driverId constructorId points fastestLapSpeed fposition
+##       &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;         &lt;dbl&gt;  &lt;dbl&gt;           &lt;dbl&gt;     &lt;dbl&gt;
+##  1    20779    841       20             9     25            212.         1
+##  2    20780    841        1             1     18            211.         2
+##  3    20781    841      808             4     15            212.         3
+##  4    20782    841        4             6     12            213.         4
+##  5    20783    841       17             9     10            213.         5
+##  6    20784    841       18             1      8            212.         6
+##  7    20785    841       13             6      6            215.         7
+##  8    20786    841       67             5      4            210.         8
+##  9    20787    841       16            10      2            209.         9
+## 10    20788    841      814            10      1            208.        10
+## # … with 2,991 more rows, and 6 more variables: qposition &lt;dbl&gt;, q1 &lt;time&gt;,
+## #   q2 &lt;time&gt;, q3 &lt;time&gt;, scored &lt;chr&gt;, places_gained &lt;dbl&gt;</code></pre>
+<p><em>I created a new dataset that I used for the rest of the project that included the new variables I created, score and places_gained. I used left join to join these datasets because that had almost entirely the same data except for one column in each that needed to be added to each other. This is the same as the F1 dataset but included those two variabled.</em></p>
+<pre class="r"><code>f1total$resultId = as.factor(f1total$resultId)
+f1total$raceId = as.factor(f1total$raceId)
+f1total$constructorId = as.factor(f1total$constructorId)
+f1total$driverId = as.factor(f1total$driverId)</code></pre>
+<p><em>I had to clean up this new dataset a little bit. These variables (resultID, raceId, constructorID, and driverId) are all listed in the dataset as numeric becaise they are numbers however they represent categorical variables so I changed them.</em></p>
+<pre class="r"><code>library(chron)
+mean(times(f1$q3))</code></pre>
+<pre><code>## [1] 01:30:01</code></pre>
+<pre class="r"><code>mean(times(f1$q2))</code></pre>
+<pre><code>## [1] 01:30:45</code></pre>
+<pre class="r"><code>mean(times(f1$q1))</code></pre>
+<pre><code>## [1] 01:31:51</code></pre>
+<p><em>The variables &quot;q1&quot;, &quot;q2&quot;, and &quot;q3&quot; are all in the hms class rather than numeric so I had to download the library &quot;chron&quot; to get the times function to find the mean. I dont incude this data anywhere else because the data didn't exactly convert correctly onto R, there was supposed to be a milliseconds bit that got replaced by zeros when I imported into R. These are the rough means for each of those variables that were rounded when the dataset was imported.</em></p>
+<pre class="r"><code>f1total %&gt;% summary(is.numeric = T)</code></pre>
+<pre><code>##     resultId        raceId        driverId    constructorId      points      
+##  20779  :   1   841    :  24   1      : 137   1      : 274   Min.   : 0.000  
+##  20780  :   1   842    :  24   20     : 137   3      : 274   1st Qu.: 0.000  
+##  20781  :   1   843    :  24   13     : 136   5      : 274   Median : 0.000  
+##  20782  :   1   844    :  24   815    : 136   6      : 274   Mean   : 4.644  
+##  20783  :   1   845    :  24   4      : 134   9      : 274   3rd Qu.: 8.000  
+##  20784  :   1   846    :  24   817    : 129   10     : 274   Max.   :50.000  
+##  (Other):2995   (Other):2857   (Other):2192   (Other):1357                   
+##  fastestLapSpeed   fposition        qposition          q1          
+##  Min.   :100.6   Min.   : 1.000   Min.   : 1.00   Length:3001      
+##  1st Qu.:188.0   1st Qu.: 5.000   1st Qu.: 6.00   Class1:hms       
+##  Median :197.5   Median :10.000   Median :11.00   Class2:difftime  
+##  Mean   :197.5   Mean   : 9.714   Mean   :11.42   Mode  :numeric   
+##  3rd Qu.:210.3   3rd Qu.:14.000   3rd Qu.:17.00                    
+##  Max.   :250.2   Max.   :24.000   Max.   :24.00                    
+##  NA&#39;s   :149     NA&#39;s   :529      NA&#39;s   :33                       
+##       q2                q3              scored          places_gained    
+##  Length:3001       Length:3001       Length:3001        Min.   :-17.000  
+##  Class1:hms        Class1:hms        Class :character   1st Qu.: -1.000  
+##  Class2:difftime   Class2:difftime   Mode  :character   Median :  1.000  
+##  Mode  :numeric    Mode  :numeric                       Mean   :  1.421  
+##                                                         3rd Qu.:  4.000  
+##                                                         Max.   : 18.000  
+##                                                         NA&#39;s   :554</code></pre>
+<p><em>I used the summary function to get the min, max, median, mean, Q1, and Q3 for each numeric variable in my data.</em></p>
+<pre class="r"><code>f1total %&gt;% group_by(raceId) %&gt;% summarize(mean(fastestLapSpeed)) %&gt;% 
+    na.omit()</code></pre>
+<pre><code>## # A tibble: 66 x 2
+##    raceId `mean(fastestLapSpeed)`
+##    &lt;fct&gt;                    &lt;dbl&gt;
+##  1 842                       193.
+##  2 845                       188.
+##  3 847                       190.
+##  4 848                       187.
+##  5 849                       214.
+##  6 850                       190.
+##  7 851                       183.
+##  8 854                       160.
+##  9 855                       212.
+## 10 856                       197.
+## # … with 56 more rows</code></pre>
+<p><em>This shows the average fastest lap speed for each race.</em></p>
+<pre class="r"><code>f1total %&gt;% group_by(raceId, constructorId) %&gt;% summarize(fastestLapSpeed)</code></pre>
+<pre><code>## # A tibble: 3,001 x 3
+## # Groups:   raceId, constructorId [1,501]
+##    raceId constructorId fastestLapSpeed
+##    &lt;fct&gt;  &lt;fct&gt;                   &lt;dbl&gt;
+##  1 841    1                        211.
+##  2 841    1                        212.
+##  3 841    3                        209.
+##  4 841    3                        203.
+##  5 841    4                        212.
+##  6 841    4                        207.
+##  7 841    5                        210.
+##  8 841    5                        211.
+##  9 841    6                        213.
+## 10 841    6                        215.
+## # … with 2,991 more rows</code></pre>
+<p><em>This summary shows the fastest lap speed for both drivers for each constructor.</em></p>
+<pre class="r"><code>f1num &lt;- f1total %&gt;% select(points, fastestLapSpeed, fposition, 
+    qposition, places_gained) %&gt;% na.omit()
+corylation &lt;- cor(f1num)
+round(corylation, 2)</code></pre>
+<pre><code>##                 points fastestLapSpeed fposition qposition places_gained
+## points            1.00            0.07     -0.85     -0.71          0.03
+## fastestLapSpeed   0.07            1.00     -0.08     -0.11         -0.06
+## fposition        -0.85           -0.08      1.00      0.79         -0.11
+## qposition        -0.71           -0.11      0.79      1.00          0.52
+## places_gained     0.03           -0.06     -0.11      0.52          1.00</code></pre>
+<p><em>In this section I created a correlation matrix that I will be using in the visualization section.</em></p>
+</div>
+<div id="visualization" class="section level2">
+<h2>Visualization</h2>
+<pre class="r"><code>library(&quot;ggplot2&quot;)
+corylation %&gt;% as.data.frame %&gt;% rownames_to_column %&gt;% pivot_longer(-1) %&gt;% 
+    ggplot(aes(rowname, name, fill = value)) + geom_tile() + 
+    geom_text(aes(label = round(value, 2))) + xlab(&quot;&quot;) + ylab(&quot;&quot;) + 
+    scale_fill_gradient2(low = &quot;dodgerblue&quot;, high = &quot;dodgerblue4&quot;) + 
+    theme(axis.text.x = element_text(angle = 60, hjust = 1))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /> <em>This is a correlation heatmap comparing all of the numeric variables in my datasets. We can see a strong negative correlation between points and final position meaning the higher the number of the position a driver finishes the less points they score which makes perfect sense. The next most significant variable comparison is between qualifying position and final position. This also makes sense because passing is difficult in a race so drivers generally finish around the spot they started in. We also see a solid negative correlation between quaifying position and points scored which makes sense based on the previous two comparisons made.</em></p>
+<pre class="r"><code>f1total %&gt;% ggplot(aes(x = fposition, y = qposition)) + geom_jitter(size = 2, 
+    aes(color = points, alpha = 0.2)) + scale_color_gradient(low = &quot;thistle&quot;, 
+    high = &quot;thistle4&quot;) + ggtitle(&quot;Scatterplot comparing qualifying position to finishing position&quot;) + 
+    xlab(&quot;Final position&quot;) + ylab(&quot;Qualifying position&quot;) + scale_y_continuous(breaks = seq(1, 
+    25, 1)) + scale_x_continuous(breaks = seq(1, 25, 1))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /> <em>This is a scatterplot comparing all of the drivers qualifying positions to their finishing position with the color gradient being associated with points scored. There appears to be a strong positive correlation between qualifying position and final position which is what we would expect to see because drivers who qualify higher(lower number) start in a better position in the race. We also see the color gradient gets much darker going from right to left, this is because points are directly associated with final position.</em></p>
+<pre class="r"><code>f1total %&gt;% filter(driverId == &quot;1&quot; | driverId == &quot;8&quot; | driverId == 
+    &quot;20&quot; | driverId == &quot;154&quot; | driverId == &quot;817&quot; | driverId == 
+    &quot;13&quot;) %&gt;% ggplot(aes(x = driverId, y = points, fill = driverId)) + 
+    geom_bar(stat = &quot;summary&quot;, fun.y = &quot;mean&quot;, position = &quot;dodge&quot;) + 
+    ggtitle(&quot;Average points scored for different F1 drivers&quot;) + 
+    theme(axis.title.x = element_blank(), legend.position = &quot;right&quot;) + 
+    scale_y_continuous(breaks = seq(0, 140, 5))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ham &lt;- f1total %&gt;% filter(driverId == &quot;1&quot;)
+mean(ham$points)</code></pre>
+<pre><code>## [1] 15.43066</code></pre>
+<p><em>Each driverId corresponds to a different F1 driver who has raced in over 100 races since 2011. Driver 1 is Lewis Hamilton who over this set of races has averaged a little over 15 points per race. The code below the code for the graph is there to make sure the graph has the correct numbers, and looking at the results from that this graph is accurate.</em></p>
+</div>
+<div id="clustering" class="section level2">
+<h2>Clustering</h2>
+<pre class="r"><code>library(cluster)
+pam &lt;- f1total %&gt;% pam(k = 3)
+pam</code></pre>
+<pre><code>## Medoids:
+##        ID resultId raceId driverId constructorId points fastestLapSpeed
+## [1,]  376      376     16       31            10      0         192.752
+## [2,] 1497     1497     65       35             8      0         195.970
+## [3,] 2546     2546    115       49             3      0         183.205
+##      fposition qposition q1 q2 q3 scored places_gained
+## [1,]        19        24 NA NA NA     NA             5
+## [2,]        14        22 NA NA NA     NA             8
+## [3,]        14        NA NA NA NA     NA            NA
+## Clustering vector:
+##   [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [38] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [75] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+##  [ reached getOption(&quot;max.print&quot;) -- omitted 2901 entries ]
+## Objective function:
+##    build     swap 
+## 332.2133 332.2133 
+## 
+## Available components:
+##  [1] &quot;medoids&quot;    &quot;id.med&quot;     &quot;clustering&quot; &quot;objective&quot;  &quot;isolation&quot; 
+##  [6] &quot;clusinfo&quot;   &quot;silinfo&quot;    &quot;diss&quot;       &quot;call&quot;       &quot;data&quot;</code></pre>
+<pre class="r"><code>clust &lt;- f1total %&gt;% mutate(cluster = as.factor(pam$clustering))
+clust %&gt;% ggplot(aes(fastestLapSpeed, qposition, color = scored, 
+    shape = cluster)) + geom_point()</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /> <em>In this clustering section I created a partioning around mediods (PAM) dataset using the f1total dataset, comparting fastedt lap speed, qualifying position, as well as sorting by whether the driver scored points or not. There is not much of a correlation in this chart, I chose to center around 3 clusters because there are no clear clusters and that was the standard amount we used in class. Looking at this cluster graph we can see that drivers who scored points tended to qualify higher, which is exactly what we saw in the correlation matrix. There seem to be about 10-15 data points lower than 150 fastest lap the rest are above, the ones below are likely due to malfunctions in the car.</em></p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>
